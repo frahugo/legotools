@@ -1,0 +1,20 @@
+Category ID	Category Name	Number	Name
+
+
+160	Sticker Sheet	sticker	Sticker (Unsorted, Generic Entry)
+85	Homemaker	1	Homemaker Bookcase 2 x 4 x 4
+2	Baseplate	10	Baseplate 24 x 32 (Undetermined Type)
+1	Antenna	104	Antenna 6H - no stud receptacle
+76	Flag	30322	Flag on Antenna Whip
+2	Baseplate	10p01	Baseplate 24 x 32 with Set 363/555 Dots Pattern
+2	Baseplate	10p02	Baseplate 24 x 32 with Set 354/560 Dots Pattern
+2	Baseplate	10p03	Baseplate 24 x 32 with Set 358 Dots Pattern
+2	Baseplate	10p04	Baseplate 24 x 32 with Set 345 Dots Pattern
+2	Baseplate	10p05	Baseplate 24 x 32 with Set 351/545 Dots Pattern
+43	Wheel	122c01	Plate, Modified 2 x 2 with Red Wheels
+43	Wheel	122c02	Plate, Modified 2 x 2 with White Wheels
+111	Tire & Tread	132old	Tire Smooth - Small Solid
+98	Road Sign	14	Road Sign Round
+1116	Minifigure, Legs, Modified	15	Legs without Split
+150	Minifigure, Torso	17	Torso Legoland
+18	Minifigure, Utensil	194	Minifigure, Utensil Hose Nozzle Simple
