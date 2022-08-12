@@ -5,17 +5,22 @@ const wrap = require("word-wrap");
 const readlineSync = require("readline-sync");
 
 const { Catalog } = require("legotools-lib/src/catalog");
+const { Palette } = require("legotools-lib/src/palette");
 
-exports.command = "part <part_catalog_csv_file>";
+exports.command = "part";
 exports.desc = "Print part label";
 exports.builder = {};
 exports.handler = function (argv) {
   const catalog = new Catalog();
-  catalog.load(argv.part_catalog_csv_file);
-  print(catalog);
+  const palette = new Palette();
+
+  catalog.load("catalog.txt");
+  palette.load("colors.txt");
+
+  print(catalog, palette);
 };
 
-async function print(catalog) {
+async function print(catalog, palette) {
   const partLabelFile = path.resolve(path.join(__dirname, "../../../resources/part.label"));
 
   const labelConfig = {
@@ -24,18 +29,28 @@ async function print(catalog) {
   };
 
   // Note: need recursion so the promises to work sequentially with the prompts.
-  printPart(catalog, labelConfig.dymo, labelConfig.partLabelXml);
+  printPart(catalog, palette, labelConfig.dymo, labelConfig.partLabelXml);
 }
 
-function printPart(catalog, dymo, labelXml) {
+function printPart(catalog, palette, dymo, labelXml) {
   const labelParts = [];
   var answer;
   var part;
+  var partNumber;
+  var colorId;
+  var color;
 
-  partNumber = readlineSync.question("Part number: ");
+  answer = readlineSync.question("Part number (and optional color id): ");
+  [partNumber, colorId] = answer.split(" ");
 
   if (partNumber.startsWith("q")) {
     return;
+  }
+
+  if (colorId != undefined) {
+    color = palette.findColor(colorId);
+  } else {
+    color = null;
   }
 
   part = catalog.findPart(partNumber);
@@ -48,24 +63,32 @@ function printPart(catalog, dymo, labelXml) {
     part = findSuffix(catalog, part);
   }
 
-  var answer = readlineSync.keyIn(`Print part ${part.number} ${part.name} (y/n/q)? `, {
+  var prompt;
+
+  if (color != null) {
+    prompt = `Print part ${part.number} ${part.name} in ${color.name} (y/n/q)? `;
+  } else {
+    prompt = `Print part ${part.number} ${part.name} (y/n/q)? `;
+  }
+
+  var answer = readlineSync.keyIn(prompt, {
     limit: "$<ynq>",
   });
   switch (answer) {
     case "y":
       labelParts.push("<LabelSet>");
-      recordXml = buildRecordXml(part);
+      recordXml = buildRecordXml(part, color);
       labelParts.push(recordXml);
       labelParts.push("</LabelSet>");
 
       let labelSetXml = labelParts.join("");
 
       printLabel(dymo, labelXml, labelSetXml).then((result) => {
-        printPart(catalog, dymo, labelXml);
+        printPart(catalog, palette, dymo, labelXml);
       });
       break;
     case "n":
-      printPart(catalog, dymo, labelXml);
+      printPart(catalog, palette, dymo, labelXml);
       break;
     case "q":
       break;
@@ -93,13 +116,22 @@ function findSuffix(catalog, part) {
   return otherParts[index - 1];
 }
 
-function buildRecordXml(part) {
+function buildRecordXml(part, color) {
   const name = wrap(part.name, { width: 20 });
   const category = wrap(part.categoryName, { width: 24 });
+  var colorName;
+
+  if (color != null) {
+    colorName = wrap(color.name, { width: 24 });
+  } else {
+    colorName = "";
+  }
+
   return `<LabelRecord>
         <ObjectData Name="NUMBER">${part.number}</ObjectData>
         <ObjectData Name="NAME">${name}</ObjectData>
         <ObjectData Name="CATEGORY">${category}</ObjectData>
+        <ObjectData Name="COLOR">${colorName}</ObjectData>
     </LabelRecord>`;
 }
 
